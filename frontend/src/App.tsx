@@ -24,6 +24,33 @@ function App() {
     fetchTodos()
   }, []);
 
+  const handleSubmission = async (e: React.FormEvent<HTMLFormElement>) => {
+    try {
+      const formData = new FormData(e.currentTarget);
+      const title = formData.get('title') as string;
+      const description = formData.get('description') as string;
+      const response = await fetch('http://localhost:8080/', {
+        method: 'POST',
+        body: JSON.stringify({
+          title: title,
+          description: description,
+        }),
+      });
+      if (response.status !== 200) {
+        console.log('Error submitting data');
+        return;
+      }
+
+      if (response.ok) {
+        const updated = await response.json();
+        setTodos([...todos, updated]);
+      }
+    } catch (e) {
+      console.log("Error submitting form data.");
+      console.log(e);
+    }
+  }
+
   return (
     <div className="app">
       <header className="app-header">
@@ -41,10 +68,10 @@ function App() {
       </div>
 
       <h2>Add a Todo</h2>
-      <form>
-        <input placeholder="Title" name="title" autoFocus={true} />
-        <input placeholder="Description" name="description" />
-        <button>Add Todo</button>
+      <form onSubmit={handleSubmission}>
+        <input id="title" placeholder="Title" name="title" autoFocus={true} required={true}/>
+        <input id={"description"} placeholder="Description" name="description" required={true}/>
+        <button type={"submit"}>Add Todo</button>
       </form>
     </div>
   );
